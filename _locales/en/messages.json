@@ -1,0 +1,14 @@
+{
+  "Name": {
+    "message": "Fix Punycode"
+  },
+  "Description": {
+    "message": "Decode all punycode URLs to their Unicode form."
+  },
+  "Converted": {
+    "message": "Converted"
+  },
+  "Log": {
+    "message": "Running full page audit..."
+  }
+}

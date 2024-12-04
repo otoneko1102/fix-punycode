@@ -1,0 +1,14 @@
+{
+  "Name": {
+    "message": "Fix Punycode"
+  },
+  "Description": {
+    "message": "すべてのPunycode形式のURLをUnicode表示に変換します。"
+  },
+  "Converted": {
+    "message": "変換"
+  },
+  "Log": {
+    "message": "ページ全体の監査を実行中..."
+  }
+}
