@@ -10,5 +10,11 @@
   },
   "Log": {
     "message": "Running full page audit..."
+  },
+  "Copied": {
+    "message": "Copied to clipboard"
+  },
+  "Failed": {
+    "message": "Failed to copy"
   }
 }

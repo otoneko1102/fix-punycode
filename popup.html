@@ -7,7 +7,22 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <img class="logo" src="icons/16x16.png" alt="Logo" /><h3>Fix punycode</h3>
+    <img class="logo" src="icons/16x16.png" alt="Logo" />
+    <h3>Fix Punycode</h3>
+    <h4>Decoder</h4>
+    <div>
+      <label for="punycodeInput">Enter Punycode:</label>
+      <input type="text" id="punycodeInput" placeholder="e.g., xn--r8jz45g.xn--zckzah">
+    </div>
+    <div>
+      <button id="convertButton">Convert</button>
+    </div>
+    <div>
+      <label for="unicodeOutput">Decoded Unicode:</label>
+      <input type="text" id="unicodeOutput" placeholder="e.g., 例え.テスト" readonly>
+      <button id="copyButton">Copy</button>
+    </div>
+
     <p>
       Dev: 
       <a href="https://www.otoneko.cat/" target="_blank" rel="noopener noreferrer">otoneko.</a><br>
@@ -19,5 +34,7 @@
         <img src="https://discordapp.com/api/guilds/1005287561582878800/widget.png?style=banner4" alt="Join our Discord Server!" />
       </a>
     </div>
+
+    <script src="popup.js"></script>
   </body>
 </html>
