@@ -4,17 +4,17 @@
   Decode all punycode URLs to their Unicode form.<br>
   Converting a Punycode URL into its Unicode representation improves readability and makes it easier to determine whether the site is suspicious or not.
   <img src="https://cdn.oto.pet/img/punycode_before.png" style="display: block; width: auto; height: 500px;">
-  <img src="https://cdn.oto.pet/img/punycode-after.png" style="display: block; width: auto; height: 500px;">
+  <img src="https://cdn.oto.pet/img/punycode_after.png" style="display: block; width: auto; height: 500px;">
 </details>
 <details>
   <summary>日本語</summary>
   すべてのPunycode形式のURLをUnicode表示に変換します。<br>
   Punycode形式のURLをUnicode表示に変換することで、可読性が向上し、怪しいサイトかどうか判断しやすくなります。
   <img src="https://cdn.oto.pet/img/punycode_before.png" style="display: block; width: auto; height: 500px;">
-  <img src="https://cdn.oto.pet/img/punycode-after.png" style="display: block; width: auto; height: 500px;">
+  <img src="https://cdn.oto.pet/img/punycode_after.png" style="display: block; width: auto; height: 500px;">
 </details>
 <div style="text-align: center;">
-  <img src="https://github.com/otoneko1102/fix-punycode/blob/master/icons/128x128.png?raw=true" alt="Logo" style="display: block; width: auto; height: 128px;">
+  <img src="https://github.com/otoneko1102/fix-punycode/blob/main/icons/128x128.png?raw=true" alt="Logo" style="display: block; width: auto; height: 128px;">
 </div>
 
 ### Teams
