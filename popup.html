@@ -1,40 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fix Punycode</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <img class="logo" src="icons/16x16.png" alt="Logo" />
-    <h3>Fix Punycode</h3>
-    <h4>Decoder</h4>
-    <div>
-      <label for="punycodeInput">Enter Punycode:</label>
-      <input type="text" id="punycodeInput" placeholder="e.g., xn--r8jz45g.xn--zckzah">
-    </div>
-    <div>
-      <button id="convertButton">Convert</button>
-    </div>
-    <div>
-      <label for="unicodeOutput">Decoded Unicode:</label>
-      <input type="text" id="unicodeOutput" placeholder="e.g., 例え.テスト" readonly>
-      <button id="copyButton">Copy</button>
-    </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix Punycode</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <img class="logo" src="icons/16x16.png" alt="Logo" />
+  <h3>Fix Punycode</h3>
 
-    <p>
-      Dev: 
-      <a href="https://www.otoneko.cat/" target="_blank" rel="noopener noreferrer">otoneko.</a><br>
-      Contact: 
-      <a href="https://www.otoho.me/" target="_blank" rel="noopener noreferrer">Oto Home</a>
-    </p>
-    <div class="button">
-      <a href="https://discord.gg/yKW8wWKCnS" target="_blank" rel="noopener noreferrer">
-        <img src="https://discordapp.com/api/guilds/1005287561582878800/widget.png?style=banner4" alt="Join our Discord Server!" />
-      </a>
-    </div>
+  <!-- Enable/Disable チェックボックス -->
+  <div class="toggle-container">
+    <label for="toggle-checkbox">Enable Fix Punycode</label>
+    <input type="checkbox" id="toggle-checkbox" checked>
+  </div>
 
-    <script src="popup.js"></script>
-  </body>
+  <h4>Converted List</h4>
+  <div id="count">Converted: <span id="converted-count">0</span></div>
+
+  <div class="table-container">
+    <table id="converted-table">
+      <thead>
+        <tr>
+          <th>Punycode</th>
+          <th>Unicode</th>
+        </tr>
+      </thead>
+      <tbody id="converted-list"></tbody>
+    </table>
+  </div>
+
+  <p>
+    Dev: 
+    <a href="https://www.otoneko.cat/" target="_blank" rel="noopener noreferrer">otoneko.</a><br>
+    Contact: 
+    <a href="https://www.otoho.me/" target="_blank" rel="noopener noreferrer">Oto Home</a>
+    <a href="https://discord.gg/yKW8wWKCnS" target="_blank" rel="noopener noreferrer">Discord</a>
+  </p>
+  <script src="popup.js"></script>
+</body>
 </html>

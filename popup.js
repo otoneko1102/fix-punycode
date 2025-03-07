@@ -1,114 +1,96 @@
-const copiedMsg = chrome.i18n.getMessage('Copied');
-const failedMsg = chrome.i18n.getMessage('Failed');
+const convertedCountEl = document.getElementById("converted-count");
+const convertedListEl = document.getElementById("converted-list");
+const toggleCheckbox = document.getElementById("toggle-checkbox");
 
-function popup(message) {
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  const popup = document.createElement('div');
-  popup.className = 'popup';
-  popup.innerHTML = `<p>${message}</p>`;
-  overlay.appendChild(popup);
-  document.body.appendChild(overlay);
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  if (tabs.length === 0) return;
+  const tabId = tabs[0].id;
+  const url = new URL(tabs[0].url);
+  const hostname = url.hostname;
 
-  overlay.addEventListener('click', () => {
-    overlay.remove();
+  chrome.storage.local.get({ ignoreList: [] }, (data) => {
+    let ignoreList = data.ignoreList || [];
+    let isIgnored = ignoreList.includes(hostname);
+
+    toggleCheckbox.checked = !isIgnored;
+    
+    toggleCheckbox.addEventListener("change", () => {
+      updateIgnoreList(tabId, hostname, toggleCheckbox.checked);
+    });
+
+    chrome.tabs.sendMessage(tabId, { action: "ping" }, (response) => {
+      if (chrome.runtime.lastError || !response) {
+        // console.warn("Content script is not loaded, injecting now...");
+        injectContentScript(tabId);
+      } else {
+        // console.log("Content script is already active.");
+        fetchConvertedList();
+      }
+    });
+  });
+});
+
+function updateIgnoreList(tabId, hostname, isEnabled) {
+  chrome.storage.local.get({ ignoreList: [] }, (data) => {
+    let ignoreList = data.ignoreList || [];
+
+    if (isEnabled) {
+      ignoreList = ignoreList.filter(item => item !== hostname);
+    } else {
+      ignoreList.push(hostname);
+    }
+
+    chrome.storage.local.set({ ignoreList }, () => {
+      chrome.tabs.reload(tabId);
+    });
+  });
+}
+
+function injectContentScript(tabId) {
+  chrome.scripting.executeScript(
+    {
+      target: { tabId: tabId },
+      files: ["content.js"]
+    },
+    () => {
+      if (chrome.runtime.lastError) {
+        // console.error("Failed to inject content script:", chrome.runtime.lastError.message);
+      } else {
+        // console.log("Content script injected successfully.");
+        fetchConvertedList();
+      }
+    }
+  );
+}
+
+function fetchConvertedList() {
+  try {
+    chrome.runtime.sendMessage({ action: "getConvertedList" }, (response) => {
+      if (response && response.list) {
+        updateConvertedTable(response.list);
+      }
+    });
+  } catch (error) {
+    // console.warn("Failed to send message to content script:", error.message);
+  }
+}
+
+chrome.runtime.onMessage.addListener((request) => {
+  if (request.action === "updateConvertedList") {
+    updateConvertedTable(request.list);
+  }
+});
+
+function updateConvertedTable(list) {
+  convertedListEl.innerHTML = "";
+
+  list.forEach(entry => {
+    const [punycode, unicode] = entry.split(" → ");
+
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${punycode}</td><td>${unicode}</td>`;
+    convertedListEl.appendChild(row);
   });
 
-  setTimeout(() => {
-    overlay.remove();
-  }, 1000);
+  convertedCountEl.textContent = list.length;
 }
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function punycodeToUnicode(domain) {
-  const base = 36;
-  const tMin = 1;
-  const tMax = 26;
-  const skew = 38;
-  const damp = 700;
-  const initialBias = 72;
-  const initialN = 128;
-  const delimiter = '-';
-
-  let output = [];
-  let input = domain.split('');
-  let i = domain.lastIndexOf(delimiter);
-  let n = initialN;
-  let bias = initialBias;
-  let index = 0;
-
-  if (i > 0) {
-    output = input.slice(0, i);
-    input = input.slice(i + 1);
-  }
-
-  while (input.length > 0) {
-    let oldi = index;
-    let w = 1;
-
-    for (let k = base; ; k += base) {
-      const charCode = input.shift().charCodeAt(0);
-      const digit = charCode - (charCode < 58 ? 22 : charCode < 91 ? 65 : 97);
-      index += digit * w;
-
-      const t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
-
-      if (digit < t) break;
-      w *= base - t;
-    }
-
-    bias = adapt(index - oldi, output.length + 1, oldi === 0);
-    n += Math.floor(index / (output.length + 1));
-    index %= output.length + 1;
-    output.splice(index++, 0, String.fromCharCode(n));
-  }
-
-  return output.join('');
-
-  function adapt(delta, numPoints, firstTime) {
-    delta = firstTime ? Math.floor(delta / damp) : delta >> 1;
-    delta += Math.floor(delta / numPoints);
-    let k = 0;
-    while (delta > (((base - tMin) * tMax) >> 1)) {
-      delta = Math.floor(delta / (base - tMin));
-      k += base;
-    }
-    return k + Math.floor((base - tMin + 1) * delta / (delta + skew));
-  }
-}
-
-document.getElementById("convertButton").addEventListener("click", () => {
-  const input = document.getElementById("punycodeInput").value.trim();
-  const outputField = document.getElementById("unicodeOutput");
-
-  if (input) {
-    try {
-      const decoded = input
-        .split('.')
-        .map(part => (part.startsWith("xn--") ? punycodeToUnicode(part.slice(4)) : part))
-        .join('.');
-      outputField.value = decoded;
-    } catch (e) {
-      outputField.value = "Invalid Punycode";
-    }
-  } else {
-    outputField.value = "";
-  }
-});
-
-document.getElementById("copyButton").addEventListener("click", async () => {
-  const outputField = document.getElementById("unicodeOutput");
-  const textToCopy = outputField.value;
-
-  if (textToCopy) {
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      popup(`${copiedMsg}: ` + textToCopy);
-    } catch {
-      popup(failedMsg);
-    }
-  }
-});

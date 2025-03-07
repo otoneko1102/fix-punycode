@@ -1,6 +1,3 @@
-const logMsg = chrome.i18n.getMessage('Log');
-const convertedMsg = chrome.i18n.getMessage('Converted');
-
 function punycodeToUnicode(domain) {
   const base = 36;
   const tMin = 1;
@@ -58,98 +55,151 @@ function punycodeToUnicode(domain) {
   }
 }
 
-function decodePunycode(target) {
-  if (!target) return;
+let convertedList = [];
+let isPunycodeFixEnabled = true;
 
+const hostname = window.location.hostname;
+
+chrome.storage.local.get({ ignoreList: [] }, (data) => {
+  const ignoreList = data.ignoreList || [];
+  if (!ignoreList.includes(hostname)) {
+    enablePunycodeFix();
+  } else {
+    // console.log(`Punycode Fix is disabled for ${hostname}`);
+  }
+});
+
+function enablePunycodeFix() {
+  decodePunycodeInPage();
+
+  document.body.addEventListener("mouseover", event => {
+    if (!isPunycodeFixEnabled) return;
+    const target = event.target;
+    if (target) {
+      decodePunycode(target);
+      if (target.childNodes) {
+        target.childNodes.forEach(child => decodePunycode(child));
+      }
+    }
+  });
+
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (!isPunycodeFixEnabled) return;
+        if (node.nodeType === Node.ELEMENT_NODE && !node.hasAttribute("data-punycode-fixed")) {
+          decodePunycode(node);
+          node.querySelectorAll("*:not([data-punycode-fixed])").forEach(child => decodePunycode(child));
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+}
+
+function decodePunycode(target) {
+  if (!isPunycodeFixEnabled || !target) return;
+  if (target.nodeType === Node.ELEMENT_NODE && target.hasAttribute("data-punycode-fixed")) return;
+
+  // A
   if (target.tagName === 'A' && target.href) {
     try {
       const urlObj = new URL(target.href);
-
       if (urlObj.hostname.includes("xn--")) {
-        const originalHostname = urlObj.hostname;
-
-        const decodedHostname = originalHostname
-          .split('.')
-          .map(part => (part.startsWith("xn--") ? punycodeToUnicode(part.slice(4)) : part))
-          .join('.');
-
-        urlObj.hostname = decodedHostname;
-
-        target.href = urlObj.href;
-        if (target.textContent.includes(originalHostname)) {
-          target.textContent = target.textContent.replace(originalHostname, decodedHostname);
-        }
-        if (target.title.includes(originalHostname)) {
-          target.title = target.title.replace(originalHostname, decodedHostname);
-        }
-
-        target.addEventListener('mouseover', e => e.preventDefault());
-
-        // console.log(`Fix Punycode: ${convertedMsg}: ${originalHostname} → ${decodedHostname}`);
+        replacePunycode(target, urlObj);
+        target.setAttribute("data-punycode-fixed", "true");
       }
     } catch {}
   }
 
+  // TEXT_NODE
   if (target.nodeType === Node.TEXT_NODE) {
-    const regex = /(https?:\/\/[^\s]+)/g;
-    const matches = target.nodeValue.match(regex);
-    if (matches) {
-      matches.forEach(match => {
-        try {
-          const urlObj = new URL(match);
-          if (urlObj.hostname.includes("xn--")) {
-            const originalHostname = urlObj.hostname;
+    replaceTextPunycode(target);
+  }
+}
 
-            const decodedHostname = originalHostname
-              .split('.')
-              .map(part => (part.startsWith("xn--") ? punycodeToUnicode(part.slice(4)) : part))
-              .join('.');
+function replacePunycode(target, urlObj) {
+  const originalHostname = urlObj.hostname;
+  const decodedHostname = originalHostname
+    .split('.')
+    .map(part => (part.startsWith("xn--") ? punycodeToUnicode(part.slice(4)) : part))
+    .join('.');
 
-            urlObj.hostname = decodedHostname;
-            target.nodeValue = target.nodeValue.replace(match, urlObj.href);
+  urlObj.hostname = decodedHostname;
 
-            // console.log(`Fix Punycode: ${convertedMsg}: ${originalHostname} → ${decodedHostname}`);
-          }
-        } catch {}
-      });
+  target.href = urlObj.href;
+  if (target.textContent.includes(originalHostname)) {
+    target.textContent = target.textContent.replace(originalHostname, decodedHostname);
+  }
+  if (target.title.includes(originalHostname)) {
+    target.title = target.title.replace(originalHostname, decodedHostname);
+  }
+
+  target.addEventListener('mouseover', e => e.preventDefault());
+
+  convertedList.push(`${originalHostname} → ${decodedHostname}`);
+}
+
+function replaceTextPunycode(textNode) {
+  if (!textNode.parentNode || textNode.parentNode.nodeType !== Node.ELEMENT_NODE) return;
+  if (textNode.parentNode.hasAttribute("data-punycode-fixed")) return;
+
+  const regex = /(?:https?:\/\/)?([\w.-]*xn--[\w.-]*)/g;
+  let text = textNode.nodeValue;
+  let replacedText = text.replace(regex, match => {
+    const originalHostname = match;
+    if (originalHostname.includes("xn--")) {
+      return originalHostname
+        .split('.')
+        .map(part => (part.startsWith("xn--") ? punycodeToUnicode(part.slice(4)) : part))
+        .join('.');
     }
+    return match;
+  });
+
+  if (text !== replacedText) {
+    textNode.nodeValue = replacedText;
+    textNode.parentNode.setAttribute("data-punycode-fixed", "true");
+    convertedList.push(`${text} → ${replacedText}`);
   }
 }
 
 function decodePunycodeInPage() {
-  console.log(`Fix Punycode: ${logMsg}`);
-  const elements = document.querySelectorAll('a[href], *');
-  elements.forEach(element => decodePunycode(element));
+  if (!isPunycodeFixEnabled) return;
+  document.querySelectorAll("*:not([data-punycode-fixed])").forEach(element => decodePunycode(element));
 }
 
-document.body.addEventListener('mouseover', event => {
-  const target = event.target;
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "decodePunycode") {
+    const decoded = request.punycode
+      .split('.')
+      .map(part => (part.startsWith("xn--") ? punycodeToUnicode(part.slice(4)) : part))
+      .join('.');
+    sendResponse({ decoded });
+  }
 
-  if (target) {
-    decodePunycode(target);
+  if (request.action === "togglePunycodeFix") {
+    isPunycodeFixEnabled = !request.disable;
+    // console.log(`Punycode Fix is now ${isPunycodeFixEnabled ? "enabled" : "disabled"}`);
+  }
 
-    if (target.childNodes) {
-      target.childNodes.forEach(child => decodePunycode(child));
-    }
+  if (request.action === "getConvertedList") {
+    sendResponse({ list: convertedList });
   }
 });
 
-const observer = new MutationObserver(mutations => {
-  mutations.forEach(mutation => {
-    mutation.addedNodes.forEach(node => {
-      if (node.nodeType === 1) {
-        decodePunycode(node);
-        node.querySelectorAll('*').forEach(child => decodePunycode(child));
-      }
-    });
-  });
-});
+let intervalId = setInterval(() => {
+  if (!chrome.runtime || !chrome.runtime.id) return;
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+  try {
+    chrome.runtime.sendMessage({ action: "updateConvertedList", list: convertedList });
+  } catch (error) {
+    // console.warn("Failed to send message:", error.message);
+  }
+}, 5000);
 
-setInterval(decodePunycodeInPage, 1000);
-
-decodePunycodeInPage();
+window.addEventListener("beforeunload", () => clearInterval(intervalId));
