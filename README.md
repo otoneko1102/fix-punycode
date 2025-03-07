@@ -2,14 +2,16 @@
 <details>
   <summary>English</summary>
   Decode all punycode URLs to their Unicode form.<br>
-  Converting a Punycode URL into its Unicode representation improves readability and makes it easier to determine whether the site is suspicious or not.
+  Converting a Punycode URL into its Unicode representation improves readability and makes it easier to determine whether the site is suspicious or not.<br>
+  Starting from version 2.0.0 onwards, it is now possible to enable/disable extensions on a page-by-page basis.
   <img src="https://cdn.oto.pet/img/punycode_before.png" style="display: block; width: auto; height: 500px;">
   <img src="https://cdn.oto.pet/img/punycode_after.png" style="display: block; width: auto; height: 500px;">
 </details>
 <details>
   <summary>日本語</summary>
   すべてのPunycode形式のURLをUnicode表示に変換します。<br>
-  Punycode形式のURLをUnicode表示に変換することで、可読性が向上し、怪しいサイトかどうか判断しやすくなります。
+  Punycode形式のURLをUnicode表示に変換することで、可読性が向上し、怪しいサイトかどうか判断しやすくなります。<br>
+  バージョン2.0.0以降からページごとに拡張機能の有効/無効を設定できるようになりました。
   <img src="https://cdn.oto.pet/img/punycode_before.png" style="display: block; width: auto; height: 500px;">
   <img src="https://cdn.oto.pet/img/punycode_after.png" style="display: block; width: auto; height: 500px;">
 </details>
