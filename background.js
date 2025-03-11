@@ -1,13 +1,11 @@
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
-    chrome.tabs.create({ url: "https://github.com/otoneko1102/fix-punycode#readme" });
+    chrome.tabs.create({ url: "https://xn--r8jqs6k2dyb.xn--tckwe" });
   }
 
-  /* 将来の変更用: 予約
   if (details.reason === "update") {
-    chrome.tabs.create({ url: "https://github.com/otoneko1102/fix-punycode#readme" });
+    chrome.tabs.create({ url: "https://xn--r8jqs6k2dyb.xn--tckwe" });
   }
-  */
 
   chrome.storage.local.get({ ignoreList: [] }, (data) => {
     if (!data.ignoreList) {
