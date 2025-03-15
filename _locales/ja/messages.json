@@ -16,5 +16,11 @@
   },
   "Failed": {
     "message": "失敗しました"
+  },
+  "Label": {
+    "message": "Fix Punycodeを有効化"
+  },
+  "List": {
+    "message": "変換リスト"
   }
 }

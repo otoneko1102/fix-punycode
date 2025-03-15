@@ -16,5 +16,11 @@
   },
   "Failed": {
     "message": "Failed to copy"
+  },
+  "Label": {
+    "message": "Enable Fix Punycode"
+  },
+  "List": {
+    "message": "Converted List"
   }
 }

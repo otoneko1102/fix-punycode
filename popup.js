@@ -2,6 +2,11 @@ const convertedCountEl = document.getElementById("converted-count");
 const convertedListEl = document.getElementById("converted-list");
 const toggleCheckbox = document.getElementById("toggle-checkbox");
 
+// Translate
+document.getElementById('toggle-checkbox-label').textContent = chrome.i18n.getMessage('Label');
+document.getElementById('list').textContent = chrome.i18n.getMessage('List');
+document.getElementById('count-span').textContent = chrome.i18n.getMessage('Converted');
+
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   if (tabs.length === 0) return;
   const tabId = tabs[0].id;

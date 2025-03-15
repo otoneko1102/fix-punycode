@@ -1,0 +1,26 @@
+{
+  "Name": {
+    "message": "Исправить Punycode"
+  },
+  "Description": {
+    "message": "Декодирует все URL-адреса Punycode в их Unicode-форму."
+  },
+  "Converted": {
+    "message": "Преобразовано"
+  },
+  "Log": {
+    "message": "Выполняется полный аудит страницы..."
+  },
+  "Copied": {
+    "message": "Скопировано в буфер обмена"
+  },
+  "Failed": {
+    "message": "Не удалось скопировать"
+  },
+  "Label": {
+    "message": "Включить Исправить Punycode"
+  },
+  "List": {
+    "message": "Конвертированный список"
+  }
+}

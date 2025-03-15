@@ -10,14 +10,13 @@
   <img class="logo" src="icons/16x16.png" alt="Logo" />
   <h3>Fix Punycode</h3>
 
-  <!-- Enable/Disable チェックボックス -->
   <div class="toggle-container">
-    <label for="toggle-checkbox">Enable Fix Punycode</label>
+    <label id="toggle-checkbox-label" for="toggle-checkbox">Enable Fix Punycode</label>
     <input type="checkbox" id="toggle-checkbox" checked>
   </div>
 
-  <h4>Converted List</h4>
-  <div id="count">Converted: <span id="converted-count">0</span></div>
+  <h4 id="list">Converted List</h4>
+  <div id="count"><span id="count-span">Converted</span>: <span id="converted-count">0</span></div>
 
   <div class="table-container">
     <table id="converted-table">
