@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 
   if (details.reason === "update") {
-    chrome.tabs.create({ url: "https://xn--r8jqs6k2dyb.xn--tckwe" });
+    // chrome.tabs.create({ url: "https://xn--r8jqs6k2dyb.xn--tckwe" });
   }
 
   chrome.storage.local.get({ ignoreList: [] }, (data) => {
